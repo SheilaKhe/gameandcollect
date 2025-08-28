@@ -3,16 +3,6 @@ import os
 from flask import Flask, request, jsonify  
 app = Flask(__name__)
 
-# === CODE FROM ORIGINAL SCRIPT ===
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-cm_find_url_requests_with_lowest_and_median_clean.py
-----------------------------------------------------
-À partir d'un ID de carte (ex: DRI209) ou d'une requête (ex: "Pikachu 160"),
-renvoie l'URL produit Cardmarket AVEC filtres appliqués (France/Français/NM),
-extrait le "Lowest Price" et calcule le "Median Price".
-"""
 
 import argparse
 from pathlib import Path
