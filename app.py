@@ -212,8 +212,26 @@ def main():
 if __name__ == "__main__":
     main()
 
+def get_prices_for_query(card_id):
+    cookies = {}
 
-# === FLASK ROUTE ===
+    sess = make_session(cookies if cookies else None)
+
+    product_url = find_product_url(card_id, sess=sess, timeout=30)
+    filtered_url = add_filters(product_url, DEFAULT_FILTERS)
+
+    html_lowest = sess.get(filtered_url, timeout=30).text
+    lowest = extract_lowest_price(html_lowest)
+
+    # Construire la 2e URL pour le médian (ajout sellerType=1)
+    median_filters = {"sellerCountry": "12", "sellerType": "1", "language": "2", "minCondition": "2"}
+    median_url = add_filters(product_url, median_filters)
+
+    html_median = sess.get(median_url, timeout=30).text
+    median = extract_median_price(html_median)
+
+    return lowest, median, filtered_url
+
 @app.route("/getPrices", methods=["POST"])
 def get_prices():
     data = request.get_json()
@@ -223,11 +241,6 @@ def get_prices():
         return jsonify({"error": "Missing 'query' field"}), 400
 
     try:
-        # Import the main function from your script dynamically
-        from_script = globals()
-        from_script["main"] = lambda: None  # bypass argparse main call
-
-        from cm_find_url_requests_with_lowest_and_median_clean import get_prices_for_query
         lowest, median, url = get_prices_for_query(query)
 
         return jsonify({
