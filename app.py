@@ -36,17 +36,29 @@ def add_filters(base_url: str, filters: dict) -> str:
     parts[4] = urlencode(query, doseq=True)
     return urlunparse(parts)
 
-def find_product_url(card_id: str, sess) -> str:
+def find_product_url(card_id: str, sess: requests.Session, timeout: int = 30) -> str:
+    from urllib.parse import quote_plus
+    import requests
+    from bs4 import BeautifulSoup
+
     url = SEARCH_BASE + quote_plus(card_id)
-    r = sess.get(url, allow_redirects=True)
+    r = sess.get(url, allow_redirects=True, timeout=timeout)
+
     if "/Products/Singles/" in r.url:
         return r.url
-    soup = BeautifulSoup(r.text, "html.parser")
-    a = soup.select_one("a[href*='/Products/Singles/']")
-    if a and a.get("href"):
-        return urljoin("https://www.cardmarket.com", a["href"])
-    raise RuntimeError(f"Aucun produit trouvé pour '{card_id}'.")
 
+    if r.status_code == 403:
+        raise SystemExit("403 Forbidden : passe --cookie '...' ou installe cloudscraper (pip install cloudscraper).")
+    r.raise_for_status()
+
+    soup = BeautifulSoup(r.text, "html.parser")
+
+    # Nouvelle méthode simplifiée et plus robuste
+    link = soup.select_one("a[href*='/Products/Singles/']")
+    if link and link.get("href"):
+        return urljoin("https://www.cardmarket.com", link.get("href"))
+
+    raise RuntimeError(f"Aucun lien produit trouvé pour '{card_id}'.")
 def extract_lowest_price(html: str) -> str | None:
     soup = BeautifulSoup(html, "html.parser")
     for s in soup.find_all(string=lambda t: isinstance(t, str) and "€" in t):
