@@ -4,6 +4,7 @@ import re
 from urllib.parse import quote_plus, urljoin, urlparse, urlunparse, parse_qs
 from bs4 import BeautifulSoup
 import cloudscraper
+import requests
 
 app = Flask(__name__)
 
