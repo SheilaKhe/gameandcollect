@@ -54,18 +54,26 @@ def add_filters(base_url: str, filters: dict) -> str:
 def find_product_url(card_id: str, sess: requests.Session, timeout: int = 30) -> str:
     url = SEARCH_BASE + quote_plus(card_id)
     r = sess.get(url, allow_redirects=True, timeout=timeout)
-    print("[DEBUG] Request URL:", r.url)
-    print("[DEBUG] Status Code:", r.status_code)
 
+    # Si on est redirigé directement vers une fiche produit
     if "/Products/Singles/" in r.url:
         return r.url
 
+    # Sinon, on analyse le HTML de la page de recherche
     soup = BeautifulSoup(r.text, "html.parser")
-    a = soup.select_one("a[href*='/Products/Singles/']")
-    if a and a.get("href"):
-        return urljoin("https://www.cardmarket.com", a.get("href"))
 
-    raise Exception(f"Aucun produit trouvé pour '{card_id}'.")
+    # Essaye de trouver un lien vers un produit
+    for sel in [
+        "table#ProductsTable a[href*='/Products/Singles/']",
+        "div#ProductsTable a[href*='/Products/Singles/']",
+        "a[href*='/Products/Singles/']"
+    ]:
+        a = soup.select_one(sel)
+        if a and a.get("href"):
+            href = a.get("href")
+            return urljoin("https://www.cardmarket.com", href)
+
+    raise RuntimeError(f"Aucun produit trouvé pour '{card_id}'.")
 
 def extract_lowest_price(html: str) -> str | None:
     soup = BeautifulSoup(html, "html.parser")
@@ -123,5 +131,5 @@ def get_prices():
 
 # === LAUNCH SERVER ===
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5001))
     app.run(host="0.0.0.0", port=port)
