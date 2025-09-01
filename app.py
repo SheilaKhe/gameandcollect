@@ -154,7 +154,7 @@ def get_prices_for_query(card_id: str):
 
     return lowest or "N/A", median or "N/A", filtered_url
 
-# === FLASK ROUTE ===
+# === FLASK ROUTES ===
 @app.route("/getPrices", methods=["POST"])
 def get_prices():
     data = request.get_json()
@@ -170,7 +170,7 @@ def get_prices():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
 @app.route("/")
 def home():
     return "Flask app is running on Railway!"
