@@ -170,6 +170,10 @@ def get_prices():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/")
+def home():
+    return "Flask app is running on Railway!"
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
