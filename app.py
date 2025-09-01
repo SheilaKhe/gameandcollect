@@ -164,9 +164,9 @@ def get_prices():
     try:
         lowest, median, url = get_prices_for_query(query)
         return jsonify({
-            "lowest": lowest,
-            "median": median,
-            "url": url
+            "lowest": str(lowest),
+            "median": str(median),
+            "url": str(url)
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
