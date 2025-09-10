@@ -1,8 +1,5 @@
 services:
-  - type: web
-    name: gameandcollect-api
+  - name: gameandcollect-api
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app"
-    region: frankfurt
-    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
